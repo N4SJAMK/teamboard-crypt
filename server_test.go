@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	Url = "http://localhost:9004"
+	URL = "http://localhost:9004"
 )
 
 func request(resource string, p *Password) (*http.Response, error) {
@@ -17,7 +17,7 @@ func request(resource string, p *Password) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	return http.Post((Url + "/" + resource),
+	return http.Post((URL + "/" + resource),
 		"application/json", bytes.NewReader(jb))
 }
 
