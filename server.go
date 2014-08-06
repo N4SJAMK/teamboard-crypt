@@ -8,14 +8,6 @@ import (
 	"strconv"
 )
 
-type Password struct {
-	Hash  string `json:"hash,omitempty"`
-	Plain string `json:"plain,omitempty"`
-	Match bool   `json:"match,omitempty"`
-}
-
-type PasswordHandler func(*Password) (*Password, error)
-
 func route(handler PasswordHandler) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != "POST" {
