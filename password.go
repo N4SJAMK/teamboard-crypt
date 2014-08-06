@@ -2,7 +2,7 @@ package main
 
 import "code.google.com/p/go.crypto/bcrypt"
 
-// Represents a password sent and received by the client.
+// Password represents a password sent and received by the client.
 // When sent by client, can contain Hash and Plain attributes.
 // When sent by the server to the client, can contain the Hash
 // and Match attributes.
@@ -12,7 +12,7 @@ type Password struct {
 	Match bool   `json:"match,omitempty"`
 }
 
-// Signature for Password handling, Hash and Compare.
+// PasswordHandler is the signature for Hash and Compare functions.
 type PasswordHandler func(*Password) (*Password, error)
 
 // Hash the given Password using bcrypt.
