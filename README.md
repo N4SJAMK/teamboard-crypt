@@ -1,4 +1,7 @@
-teamboard-crypt
-===============
+# teamboard-crypt
 
-Hash and compare passwords
+Hash and compare passwords.
+
+## Installation
+
+**TODO**
