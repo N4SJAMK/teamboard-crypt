@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 )
 
@@ -40,6 +41,11 @@ func route(handler PasswordHandler) http.HandlerFunc {
 }
 
 func main() {
+	numcpu := runtime.NumCPU()
+	numprocs := runtime.GOMAXPROCS(numcpu)
+
+	log.Printf("GOMAXPROCS set to %d, from %d", numcpu, numprocs)
+
 	http.HandleFunc("/hash", route(Hash))
 	http.HandleFunc("/compare", route(Compare))
 
