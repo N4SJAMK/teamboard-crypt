@@ -22,13 +22,18 @@ func route(handler PasswordHandler) http.HandlerFunc {
 			return
 		}
 
-		data, err := handler(&password)
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+		result := make(chan *Password, 1)
+		go handler(&password, result)
+
+		handled := <-result
+		if handled == nil {
+			http.Error(res,
+				http.StatusText(http.StatusInternalServerError),
+				http.StatusInternalServerError)
 			return
 		}
 
-		jsondata, err := json.Marshal(data)
+		jsondata, err := json.Marshal(handled)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return

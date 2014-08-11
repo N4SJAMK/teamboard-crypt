@@ -1,5 +1,6 @@
 package main
 
+import "log"
 import "code.google.com/p/go.crypto/bcrypt"
 
 // Password represents a password sent and received by the client.
@@ -13,21 +14,22 @@ type Password struct {
 }
 
 // PasswordHandler is the signature for Hash and Compare functions.
-type PasswordHandler func(*Password) (*Password, error)
+type PasswordHandler func(*Password, chan *Password)
 
 // Hash the given Password using bcrypt.
-func Hash(password *Password) (*Password, error) {
+func Hash(password *Password, results chan *Password) {
 	hash, err := bcrypt.GenerateFromPassword(
 		[]byte(password.Plain), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, err
+		log.Printf("ERROR Hash: %s\n", err.Error())
+		results <- nil
 	}
-	return &Password{Hash: string(hash)}, nil
+	results <- &Password{Hash: string(hash)}
 }
 
 // Compare the given Password's plaintext representation to its hash.
-func Compare(password *Password) (*Password, error) {
+func Compare(password *Password, results chan *Password) {
 	match := (bcrypt.CompareHashAndPassword(
 		[]byte(password.Hash), []byte(password.Plain)) == nil)
-	return &Password{Match: match}, nil
+	results <- &Password{Match: match}
 }
