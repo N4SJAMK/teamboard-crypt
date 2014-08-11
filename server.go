@@ -8,7 +8,7 @@ import (
 	"runtime"
 )
 
-func route(handler PasswordHandler) http.HandlerFunc {
+func route(handler PasswordHandler) http.Handler {
 	fn := func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != "POST" {
 			http.Error(res,
