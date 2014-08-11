@@ -6,13 +6,14 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"strconv"
 )
 
 func route(handler PasswordHandler) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
+	fn := func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != "POST" {
-			http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
+			http.Error(res,
+				http.StatusText(http.StatusMethodNotAllowed),
+				http.StatusMethodNotAllowed)
 			return
 		}
 
@@ -22,27 +23,22 @@ func route(handler PasswordHandler) http.HandlerFunc {
 			return
 		}
 
-		result := make(chan *Password, 1)
-		go handler(&password, result)
-
-		handled := <-result
-		if handled == nil {
-			http.Error(res,
-				http.StatusText(http.StatusInternalServerError),
-				http.StatusInternalServerError)
+		data, err := handler(&password)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		jsondata, err := json.Marshal(handled)
+		jsondata, err := json.Marshal(data)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		res.Header().Set("Content-Type", "application/json")
-		res.Header().Set("Content-Length", strconv.Itoa(len(jsondata)))
 		res.Write(jsondata)
 	}
+	return http.HandlerFunc(fn)
 }
 
 func main() {
@@ -51,8 +47,8 @@ func main() {
 
 	log.Printf("GOMAXPROCS set to %d, from %d", numcpu, numprocs)
 
-	http.HandleFunc("/hash", route(Hash))
-	http.HandleFunc("/compare", route(Compare))
+	http.Handle("/hash", route(Hash))
+	http.Handle("/compare", route(Compare))
 
 	addr := ":9004"
 	if port := os.Getenv("PORT"); port != "" {
